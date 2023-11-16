@@ -19,7 +19,7 @@
 Game::Game() {
     FPS = DEFAULT_MAX_FPS;
     msPrevFrame = 0;
-
+    dt = 0.0;
     isRunning = false;
 }
 
@@ -28,6 +28,11 @@ Game::~Game() {
 
 void Game::SetMaxFPS(std::size_t fps) {
     this->FPS = fps;
+}
+
+template<typename T>
+[[nodiscard]] inline T Game::deltaTime(T v) {
+    return v * this->dt;
 }
 
 void Game::Initialize() {
@@ -53,6 +58,7 @@ void Game::Initialize() {
     }
 }
 
+
 void Game::Run() {
     this->Setup();
 
@@ -60,15 +66,16 @@ void Game::Run() {
     while (this->isRunning) {
        Process();
 
-       // TODO: add logic to allow unlimited fps.
-       // if (this->FPS != 0) {
-       int delay = MILLISECOND / this->FPS - (SDL_GetTicks() - this->msPrevFrame);
-       if (delay > 0 && delay <= MILLISECOND / this->FPS) {
-           SDL_Delay(delay);
+       if (this->FPS != 0) {
+           int delay = MILLISECOND / this->FPS - (SDL_GetTicks64() - this->msPrevFrame);
+           if (delay > 0 && delay <= MILLISECOND / this->FPS) {
+               SDL_Delay(delay);
+           }
        }
-       // }
 
-       this->msPrevFrame = SDL_GetTicks();
+       this->dt = (SDL_GetTicks() - this->msPrevFrame) / 1000.0f;
+
+       this->msPrevFrame = SDL_GetTicks64();
 
        Update();
        Render();
@@ -110,12 +117,12 @@ glm::vec2 vel;
 
 void Game::Setup() {
     pos = glm::vec2(10.0, 20.0);
-    vel = glm::vec2(1.0, 0.0);
+    vel = glm::vec2(40.0, 10.0);
 }
 
 void Game::Update() {
-    pos.x += vel.x;
-    pos.y += vel.y;
+    pos.x += this->deltaTime(vel.x);
+    pos.y += this->deltaTime(vel.y);
 }
 
 void Game::Render() {

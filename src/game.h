@@ -12,6 +12,8 @@ class Game {
         std::size_t FPS;
         int msPrevFrame;
 
+        double dt;
+
         SDL_Window* mWindow;
         SDL_Renderer* mRenderer;
 
@@ -21,6 +23,12 @@ class Game {
 
         Game();
         ~Game();
+
+        /**
+         * Multiplies the value `v` by the delta time.
+         */
+        template<typename T>
+        [[nodiscard]] inline T deltaTime(T v);
 
         /**
          * Sets the maximum FPS that the game should target. Set it to 0 for
