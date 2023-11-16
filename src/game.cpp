@@ -1,7 +1,9 @@
-#include <SDL2/SDL_render.h>
-#include <SDL2/SDL_video.h>
 #include <iostream>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_keycode.h>
+#include <SDL2/SDL_render.h>
+#include <SDL2/SDL_video.h>
 
 #include "game.h"
 
@@ -15,6 +17,9 @@
     }
 
 Game::Game() {
+    isRunning = false;
+    mWindow = nullptr;
+    mRenderer = nullptr;
 }
 
 Game::~Game() {
@@ -45,8 +50,11 @@ void Game::Initialize() {
 }
 
 void Game::Run() {
-    while (true) {
-    
+    this->isRunning = true;
+    while (this->isRunning) {
+       Process();
+       Update();
+       Render();
     }
 }
 
@@ -57,7 +65,27 @@ void Game::Destroy() {
 }
 
 void Game::Process() {
+    SDL_Event events;
+    while(SDL_PollEvent(&events)) {
+        // TODO: maybe this switch can be in a different method that handle a custom event loop
+        switch (events.type) {
+            case SDL_QUIT: 
+                this->isRunning = false;
 
+                break;
+            case SDL_KEYDOWN:
+                // TODO: handle the key sym  must be in a different method
+                switch (events.key.keysym.sym) {
+                    case SDLK_ESCAPE:
+                        this->isRunning = false;
+                        break;
+                }
+
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 void Game::Update() {
@@ -65,5 +93,10 @@ void Game::Update() {
 }
 
 void Game::Render() {
+    SDL_check(SDL_SetRenderDrawColor(this->mRenderer, 255, 0, 0, 255), "SDL_SetRenderDrawColor");
+    SDL_check(SDL_RenderClear(this->mRenderer), "SDL_RenderClear");
 
+    // TODO: render the game...
+
+    SDL_RenderPresent(this->mRenderer);
 }

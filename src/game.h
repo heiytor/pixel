@@ -9,6 +9,8 @@ class Game {
         SDL_Renderer* mRenderer;
 
     public:
+        bool isRunning;
+
         Game();
         ~Game();
         
