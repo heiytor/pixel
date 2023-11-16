@@ -1,9 +1,9 @@
+#include <SDL2/SDL_timer.h>
+#include <cstddef>
 #include <iostream>
+#include <glm/glm.hpp>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_keycode.h>
-#include <SDL2/SDL_render.h>
-#include <SDL2/SDL_video.h>
+#include <SDL2/SDL_image.h>
 
 #include "game.h"
 
@@ -17,13 +17,17 @@
     }
 
 Game::Game() {
+    FPS = DEFAULT_MAX_FPS;
+    msPrevFrame = 0;
+
     isRunning = false;
-    mWindow = nullptr;
-    mRenderer = nullptr;
 }
 
 Game::~Game() {
+}
 
+void Game::SetMaxFPS(std::size_t fps) {
+    this->FPS = fps;
 }
 
 void Game::Initialize() {
@@ -50,9 +54,22 @@ void Game::Initialize() {
 }
 
 void Game::Run() {
+    this->Setup();
+
     this->isRunning = true;
     while (this->isRunning) {
        Process();
+
+       // TODO: add logic to allow unlimited fps.
+       // if (this->FPS != 0) {
+       int delay = MILLISECOND / this->FPS - (SDL_GetTicks() - this->msPrevFrame);
+       if (delay > 0 && delay <= MILLISECOND / this->FPS) {
+           SDL_Delay(delay);
+       }
+       // }
+
+       this->msPrevFrame = SDL_GetTicks();
+
        Update();
        Render();
     }
@@ -88,15 +105,32 @@ void Game::Process() {
     }
 }
 
-void Game::Update() {
+glm::vec2 pos;
+glm::vec2 vel;
 
+void Game::Setup() {
+    pos = glm::vec2(10.0, 20.0);
+    vel = glm::vec2(1.0, 0.0);
+}
+
+void Game::Update() {
+    pos.x += vel.x;
+    pos.y += vel.y;
 }
 
 void Game::Render() {
-    SDL_check(SDL_SetRenderDrawColor(this->mRenderer, 255, 0, 0, 255), "SDL_SetRenderDrawColor");
+    SDL_check(SDL_SetRenderDrawColor(this->mRenderer, 0, 0, 0, 255), "SDL_SetRenderDrawColor");
     SDL_check(SDL_RenderClear(this->mRenderer), "SDL_RenderClear");
 
     // TODO: render the game...
+    SDL_Texture* texture = IMG_LoadTexture(this->mRenderer, "./assets/images/tank-tiger-right.png");
+
+    SDL_Rect dstRect = {
+        static_cast<int>(pos.x), static_cast<int>(pos.y),
+        32, 32
+    };
+
+    SDL_RenderCopy(this->mRenderer, texture, NULL, &dstRect);
 
     SDL_RenderPresent(this->mRenderer);
 }
