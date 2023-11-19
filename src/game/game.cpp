@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <spdlog/spdlog.h>
 #include <string>
 
 #include "game.h"
@@ -19,20 +20,33 @@
 Game::Game() {
     FPS = DEFAULT_MAX_FPS;
     msPrevFrame = 0;
-    dt = 0.0;
+    deltaTime = 0.0;
     isRunning = false;
+
+    spdlog::info("Game initialized with default settings:");
+    spdlog::info("  - Maximum FPS: {}", FPS);
 }
 
 Game::~Game() {
 }
 
 void Game::SetMaxFPS(std::size_t fps) {
+    if (fps == 0) {
+        spdlog::info("Setting maximum FPS to unlimited (0).");
+    } else {
+        spdlog::info("Setting maximum FPS to {}.", fps);
+    }
+
     this->FPS = fps;
 }
 
 template <typename T>
-[[nodiscard]] inline T Game::deltaTime(T v) {
-    return v * this->dt;
+[[nodiscard]] inline T Game::byDeltaTime(T v) {
+    return v * this->deltaTime;
+}
+
+inline void Game::setDeltaTime() {
+    this->deltaTime = (SDL_GetTicks() - this->msPrevFrame) / 1000.0f;
 }
 
 void Game::Initialize() {
@@ -69,8 +83,7 @@ void Game::Run() {
             }
         }
 
-        this->dt = (SDL_GetTicks() - this->msPrevFrame) / 1000.0f;
-
+        this->setDeltaTime();
         this->msPrevFrame = SDL_GetTicks64();
 
         Update();
@@ -117,8 +130,8 @@ void Game::Setup() {
 }
 
 void Game::Update() {
-    pos.x += this->deltaTime(vel.x);
-    pos.y += this->deltaTime(vel.y);
+    pos.x += this->byDeltaTime(vel.x);
+    pos.y += this->byDeltaTime(vel.y);
 }
 
 void Game::Render() {
