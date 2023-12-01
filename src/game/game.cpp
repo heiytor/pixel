@@ -8,6 +8,7 @@
 #include <spdlog/spdlog.h>
 #include <string>
 
+#include "../ECS.h"
 #include "game.h"
 
 /**
@@ -121,17 +122,36 @@ void Game::Process() {
     }
 }
 
-glm::vec2 pos;
-glm::vec2 vel;
+// glm::vec2 pos;
+// glm::vec2 vel;
 
 void Game::Setup() {
-    pos = glm::vec2(10.0, 20.0);
-    vel = glm::vec2(40.0, 10.0);
+    System sys;
+
+    Entity en1(1);
+    Entity en2(2);
+
+    sys.addEntity(en1);
+    sys.addEntity(en2);
+
+    for (Entity entity : sys.getEntities()) {
+        spdlog::info("{}", entity.getID());
+    }
+
+    sys.removeEntity(en1);
+    sys.removeEntity(en2);
+
+    for (Entity entity : sys.getEntities()) {
+        spdlog::info("{}", entity.getID());
+    }
+
+    // pos = glm::vec2(10.0, 20.0);
+    // vel = glm::vec2(40.0, 10.0);
 }
 
 void Game::Update() {
-    pos.x += this->byDeltaTime(vel.x);
-    pos.y += this->byDeltaTime(vel.y);
+    // pos.x += this->byDeltaTime(vel.x);
+    // pos.y += this->byDeltaTime(vel.y);
 }
 
 void Game::Render() {
@@ -139,13 +159,13 @@ void Game::Render() {
     SDL_RenderClear(this->mRenderer);
 
     // TODO: render the game...
-    SDL_Texture *texture = IMG_LoadTexture(this->mRenderer, "./assets/images/tank-tiger-right.png");
-
-    SDL_Rect dstRect = {
-        static_cast<int>(pos.x), static_cast<int>(pos.y),
-        32, 32};
-
-    SDL_RenderCopy(this->mRenderer, texture, NULL, &dstRect);
+    // SDL_Texture *texture = IMG_LoadTexture(this->mRenderer, "./assets/images/tank-tiger-right.png");
+    //
+    // SDL_Rect dstRect = {
+    //     static_cast<int>(pos.x), static_cast<int>(pos.y),
+    //     32, 32};
+    //
+    // SDL_RenderCopy(this->mRenderer, texture, NULL, &dstRect);
 
     SDL_RenderPresent(this->mRenderer);
 }
