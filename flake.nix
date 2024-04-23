@@ -21,7 +21,15 @@
         zsh
         gcc
         gnumake
+        SDL2.dev
+        SDL2_image
+        SDL2_ttf
+        SDL2_mixer
       ];
+      env = {
+        CFLAGS = "-lSDL2 -lSDL2_ttf -lSDL2_image -lSDL2_mixer";
+        CPATH = pkgs.lib.makeSearchPath "include/SDL2" [ pkgs.SDL2.dev ];
+      };
       shellHook = ''
         echo "Entering PIXEL development environment."
         exec zsh
