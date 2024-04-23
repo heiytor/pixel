@@ -25,6 +25,7 @@
         SDL2_image
         SDL2_ttf
         SDL2_mixer
+        cglm
       ];
       env = {
         CFLAGS = "-lSDL2 -lSDL2_ttf -lSDL2_image -lSDL2_mixer";
